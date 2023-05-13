@@ -4,41 +4,46 @@ import java.io.*;
 
 public class  DrunkardsWalkAlgorithem{
   public static void main(String[] args){
-    Chunk chunk = new Chunk(50, 30);
+    Chunk chunk = new Chunk(50, 30, 10);
+    System.out.print("\u001b[3;0H");
+    chunk.generateTerrain(300);
+    chunk.render();
+    /*
     for (int i=0; i<100; i++){
-      try {
-        System.out.print("\u001b[3;0H");
-        chunk.generateTerrain(10);
-        chunk.render();
-        Thread.sleep(100);
-      } catch (Exception expn){
-        System.out.print("\u001b[2;0H");
-        System.out.println(expn);
-        chunk.walkerReset();
-      }
-    }
+      System.out.print("\u001b[3;0H");
+      chunk.generateTerrain(1);
+      chunk.render();
+      try{Thread.sleep(100);}
+      catch (Exception expn){System.out.println(expn);}
+    }*/
+    
   }
 }
 
 class Chunk{
   int[][] grid;
   int width, height;
-  Walker walker;
+  List<Walker> walkers = new ArrayList<Walker>();
 
-  public Chunk(int width, int height){
+  public Chunk(int width, int height, int w){
     this.grid = new int[width][height];
     this.width = width;
     this.height = height;
-    this.walker = new Walker(width/2, height/2);
+    for (int i=0; i<w; i++){
+      this.walkers.add(new Walker(width/2, height/2));
+    }
   }
   public void generateTerrain(int iter){
     for (int i=0; i<iter; i++){
-      grid[walker.x][walker.y] = 4;
-      walker.move();
+      for (Walker walker:walkers){
+        try {
+          grid[walker.x][walker.y] = 4;
+          walker.move();
+        } catch (Exception expn){
+          walker.reset(width/2, height/2);
+        }
+      }
     }
-  }
-  public void walkerReset(){
-    walker.reset(width/2, height/2);
   }
   public void render(){
     for (int col=0; col<grid[0].length; col++){
@@ -101,7 +106,7 @@ class Walker {
         break;
       default:
         System.out.println("all case failed");
-        break;
+        break; 
     }
   }
   public void reset(int x_, int y_){
